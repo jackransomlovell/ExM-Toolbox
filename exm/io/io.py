@@ -114,3 +114,20 @@ def tiff2H5(tiff_file, h5_file, chunk_size=(100,1024,1024), step=100, im_thres=N
             im = imAdjust(im, im_thres).astype(np.uint8)
         ds[zi*step:z] = im
     fid.close()
+    
+def NDAcquisitionToH5(nd2_names, h5_name, channel = 0):
+    channel_names = ['488', '561', '594', '640']
+    with h5py.File(h5_name, "w") as f:
+        for c, image in enumerate(nd2_names):
+            with ND2Reader(image) as images:
+                image_sizes = images.sizes
+                width = images.metadata['width']
+                height = images.metadata['height']
+                img = np.zeros((image_sizes['z'],image_sizes['x'],image_sizes['y']))
+                for z in tqdm(range(image_sizes['z'])):  
+                    img[z,:,:] = images.parser.get_image_by_attributes(frame_number = 0, 
+                                                             field_of_view = 0, 
+                                                             channel = channel, 
+                                                             z_level = z,
+                                                             height=height, width=width)
+                f.create_dataset(channel_names[c], img.shape, dtype='uint16', data = img)
