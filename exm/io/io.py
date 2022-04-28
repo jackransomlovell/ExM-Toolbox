@@ -115,6 +115,11 @@ def tiff2H5(tiff_file, h5_file, chunk_size=(100,1024,1024), step=100, im_thres=N
         ds[zi*step:z] = im
     fid.close()
     
+    
+######################################################
+###########BEGIN JACK/RUIHAN FN'S#####################
+######################################################
+
 def NDAcquisitionToH5(nd2_names, h5_name, channel = 0):
     channel_names = ['488', '561', '594', '640']
     with h5py.File(h5_name, "w") as f:
@@ -131,3 +136,13 @@ def NDAcquisitionToH5(nd2_names, h5_name, channel = 0):
                                                              z_level = z,
                                                              height=height, width=width)
                 f.create_dataset(channel_names[c], img.shape, dtype='uint16', data = img)
+
+def retrieve_images(image_names, round_index, channel_names, c):
+    with h5py.File(image_names[round_index], "r") as f:
+        layer = f[channel_names[c]][:,:,:]
+    return layer
+
+def retrieve_masks(image_names, round_index, c):
+    with h5py.File(image_names[round_index], "r") as f:
+        layer = f['masks'][c,:,:,:]
+    return layer

@@ -43,3 +43,5 @@ def imAdjust(I, thres=[1,99,True], autoscale=None):
             # convert it to uint8
             I = (I * 255).astype(np.uint8)    
     return I
+
+
