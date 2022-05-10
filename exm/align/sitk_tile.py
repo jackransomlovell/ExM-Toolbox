@@ -72,7 +72,9 @@ class sitkTile:
         if res is None:
             res = self.resolution
         image = self.convertSitkImage(image, res)
-        return self.otsu.Execute(image)
+        out_img = self.otsu.Execute(image)
+        out = sitk.GetArrayFromImage(out_img)
+        return out
     
     ### Run kernel
     def computeDilateFilter(self, image, kernel_type = None, kernel_radius = None, res = None):
@@ -83,7 +85,9 @@ class sitkTile:
         if res is None:
             res = self.resolution
         image = self.convertSitkImage(image, res)
-        return self.dilate.Execute(image)
+        out_img = self.dilate.Execute(image)
+        out = sitk.GetArrayFromImage(out_img)
+        return out
 
     #### Estimate and warp with transformation
     def convertSitkImage(self, vol_np, res_np):
