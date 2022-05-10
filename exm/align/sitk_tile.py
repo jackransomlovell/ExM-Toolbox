@@ -77,9 +77,9 @@ class sitkTile:
     ### Run kernel
     def computeDilateFilter(self, image, kernel_type = None, kernel_radius = None, res = None):
         if kernel_type:
-            dilate_filter.SetKernelType(sitk.kernel_type)
+            self.dilate.SetKernelType(sitk.kernel_type)
         if kernel_radius:
-            dilate_filter.SetKernelRadius(kernel_radius)
+            self.dilate.SetKernelRadius(kernel_radius)
         if res is None:
             res = self.resolution
         image = self.convertSitkImage(image, res)
