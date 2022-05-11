@@ -116,7 +116,7 @@ class sitkTile:
         if res is None:
             res = self.resolution
         #image = self.convertSitkImage(image, res)
-        out_img = self.dilate.Execute(image)
+        out_img = self.gauss.Execute(image)
         #out = sitk.GetArrayFromImage(out_img)
         return out_img
     
@@ -131,7 +131,7 @@ class sitkTile:
         #image = self.convertSitkImage(image, res)
         out_img = self.dilate.Execute(image)
         out = sitk.GetArrayFromImage(out_img)
-        return out_img
+        return out
 
     #### Estimate and warp with transformation
     
