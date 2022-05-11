@@ -8,13 +8,20 @@ class sitkTile:
         self.transformix = sitk.TransformixImageFilter()
         self.otsu = sitk.OtsuThresholdImageFilter()
         self.dilate = sitk.BinaryDilateImageFilter()
+        self.thrsh = sitk.BinaryThresholdImageFilter()
+        self.gauss = sitk.SmoothingRecursiveGaussianImageFilter()
         self.parameter_map = None
         self.transform_type = None
     
     def setResolution(self, resolution):
         # xyz-order
         self.resolution = resolution
-
+        
+    def convertSitkImage(self, vol_np, res_np):
+        vol = sitk.GetImageFromArray(vol_np)
+        vol.SetSpacing(res_np)
+        return vol
+    
     #### Setup Tform, Otsu, Kernel
     def setTransformType(self, transform_type, num_iteration = -1):
         self.transform_type = transform_type
@@ -53,15 +60,35 @@ class sitkTile:
                 parameter_map.append(self.createParameterMap(trans, num_iteration))
         return parameter_map
         
+    def setThrshValue(self, lower_val = 100, upper_val = None):
+        self.thrsh.SetLowerThreshold(lower_val)
+        if upper_val:
+            self.thrsh.SetUpperThreshold(upper_val)
+        
     def setOtsuValues(self, inside_val = 0, outside_val = 1):
         self.otsu.SetInsideValue(inside_val)
         self.otsu.SetOutsideValue(outside_val)
+        
+    def setGausSigma(self, sigma):
+        self.gauss.SetSigma(sigma)
         
     def setKernelType(self, kernel = sitk.sitkBox):
         self.dilate.SetKernelType(kernel)
     
     def setKernelRadius(self, radius):
         self.dilate.SetKernelRadius(radius)
+
+    ### Run thrsh
+    def computeThresh(self, image, thrsh = None, res= None):
+        if thrsh:
+            self.thrsh.SetLowerThreshold(thrsh)
+        if res is None:
+            res = self.resolution
+        image = self.convertSitkImage(image, res)
+        out_img = self.thrsh.Execute(image)
+        #out = sitk.GetArrayFromImage(out_img)
+        return out_img
+    
     
     ### Run Otsu
     def computeOtsuThresh(self, image, inside_val = None, outside_val = None, res= None):
@@ -73,8 +100,20 @@ class sitkTile:
             res = self.resolution
         image = self.convertSitkImage(image, res)
         out_img = self.otsu.Execute(image)
-        out = sitk.GetArrayFromImage(out_img)
-        return out
+        #out = sitk.GetArrayFromImage(out_img)
+        return out_img
+    
+    #run gaussian
+    
+    def computeGaussianFilter(self, image, sigma = None, res = None):
+        if sigma:
+            self.gauss.SetSigma(sigma)
+        if res is None:
+            res = self.resolution
+        image = self.convertSitkImage(image, res)
+        out_img = self.dilate.Execute(image)
+        #out = sitk.GetArrayFromImage(out_img)
+        return out_img
     
     ### Run kernel
     def computeDilateFilter(self, image, kernel_type = None, kernel_radius = None, res = None):
@@ -86,22 +125,18 @@ class sitkTile:
             res = self.resolution
         image = self.convertSitkImage(image, res)
         out_img = self.dilate.Execute(image)
-        out = sitk.GetArrayFromImage(out_img)
-        return out
+        #out = sitk.GetArrayFromImage(out_img)
+        return out_img
 
     #### Estimate and warp with transformation
-    def convertSitkImage(self, vol_np, res_np):
-        vol = sitk.GetImageFromArray(vol_np)
-        vol.SetSpacing(res_np)
-        return vol
     
     def computeTransformMap(self, vol_fix, vol_move, res_fix=None, res_move=None, mask_fix=None, mask_move=None):
         # work with mask correctly
         # https://github.com/SuperElastix/SimpleElastix/issues/198
         # not enough samples in the mask
         self.elastix.SetParameter("ImageSampler", "RandomSparseMask")
-        self.elastix.SetLogToConsole(False)
-        #self.elastix.SetLogToConsole(True)
+        #self.elastix.SetLogToConsole(False)
+        self.elastix.SetLogToConsole(True)
         if res_fix is None:
             res_fix = self.resolution
         if res_move is None:
