@@ -60,10 +60,11 @@ class sitkTile:
                 parameter_map.append(self.createParameterMap(trans, num_iteration))
         return parameter_map
         
-    def setThrshValue(self, lower_val = 100, upper_val = None):
+    def setThrshValue(self, lower_val = 200, outside_val = 1, inside_val = 0):
         self.thrsh.SetLowerThreshold(lower_val)
-        if upper_val:
-            self.thrsh.SetUpperThreshold(upper_val)
+        #self.thrsh.SetUpperThreshold(upper_val)
+        self.thrsh.SetOutsideValue(outside_val)
+        self.thrsh.SetInsideValue(inside_val)
         
     def setOtsuValues(self, inside_val = 0, outside_val = 1):
         self.otsu.SetInsideValue(inside_val)
