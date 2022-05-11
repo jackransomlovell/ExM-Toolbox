@@ -84,7 +84,7 @@ class sitkTile:
             self.thrsh.SetLowerThreshold(thrsh)
         if res is None:
             res = self.resolution
-        image = self.convertSitkImage(image, res)
+        #image = self.convertSitkImage(image, res)
         out_img = self.thrsh.Execute(image)
         #out = sitk.GetArrayFromImage(out_img)
         return out_img
@@ -98,7 +98,7 @@ class sitkTile:
             self.otsu.SetOutsideValue(outside_val)
         if res is None:
             res = self.resolution
-        image = self.convertSitkImage(image, res)
+        #image = self.convertSitkImage(image, res)
         out_img = self.otsu.Execute(image)
         #out = sitk.GetArrayFromImage(out_img)
         return out_img
@@ -110,7 +110,7 @@ class sitkTile:
             self.gauss.SetSigma(sigma)
         if res is None:
             res = self.resolution
-        image = self.convertSitkImage(image, res)
+        #image = self.convertSitkImage(image, res)
         out_img = self.dilate.Execute(image)
         #out = sitk.GetArrayFromImage(out_img)
         return out_img
@@ -123,9 +123,9 @@ class sitkTile:
             self.dilate.SetKernelRadius(kernel_radius)
         if res is None:
             res = self.resolution
-        image = self.convertSitkImage(image, res)
+        #image = self.convertSitkImage(image, res)
         out_img = self.dilate.Execute(image)
-        #out = sitk.GetArrayFromImage(out_img)
+        out = sitk.GetArrayFromImage(out_img)
         return out_img
 
     #### Estimate and warp with transformation
